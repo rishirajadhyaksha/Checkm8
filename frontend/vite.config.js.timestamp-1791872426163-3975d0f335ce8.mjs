@@ -1,0 +1,31 @@
+// vite.config.js
+import { defineConfig } from "file:///sessions/rcw-01m17s3vbd6eqysj2ptjm3vp/mnt/Documents/checkm8/frontend/node_modules/vite/dist/node/index.js";
+import react from "file:///sessions/rcw-01m17s3vbd6eqysj2ptjm3vp/mnt/Documents/checkm8/frontend/node_modules/@vitejs/plugin-react/dist/index.js";
+var vite_config_default = defineConfig({
+  plugins: [react()],
+  server: {
+    port: 5173
+  },
+  // Bot Arena's local-test sandbox worker (src/bots/botSandbox.worker.js)
+  // pulls in quickjs-emscripten, which needs its own chunk for the WASM
+  // asset — that requires the worker bundle to be built as an ES module
+  // rather than Vite's default IIFE, which doesn't support code-splitting.
+  worker: {
+    format: "es"
+  },
+  // MicroPython's loader uses top-level await; ES2022 is supported by every
+  // browser the site targets (Chrome/Edge 89+, Firefox 89+, Safari 15+).
+  build: {
+    target: "es2022"
+  },
+  esbuild: {
+    target: "es2022"
+  },
+  optimizeDeps: {
+    esbuildOptions: { target: "es2022" }
+  }
+});
+export {
+  vite_config_default as default
+};
+//# sourceMappingURL=data:application/json;base64,ewogICJ2ZXJzaW9uIjogMywKICAic291cmNlcyI6IFsidml0ZS5jb25maWcuanMiXSwKICAic291cmNlc0NvbnRlbnQiOiBbImNvbnN0IF9fdml0ZV9pbmplY3RlZF9vcmlnaW5hbF9kaXJuYW1lID0gXCIvc2Vzc2lvbnMvcmN3LTAxbTE3czN2YmQ2ZXF5c2oycHRqbTN2cC9tbnQvRG9jdW1lbnRzL2NoZWNrbTgvZnJvbnRlbmRcIjtjb25zdCBfX3ZpdGVfaW5qZWN0ZWRfb3JpZ2luYWxfZmlsZW5hbWUgPSBcIi9zZXNzaW9ucy9yY3ctMDFtMTdzM3ZiZDZlcXlzajJwdGptM3ZwL21udC9Eb2N1bWVudHMvY2hlY2ttOC9mcm9udGVuZC92aXRlLmNvbmZpZy5qc1wiO2NvbnN0IF9fdml0ZV9pbmplY3RlZF9vcmlnaW5hbF9pbXBvcnRfbWV0YV91cmwgPSBcImZpbGU6Ly8vc2Vzc2lvbnMvcmN3LTAxbTE3czN2YmQ2ZXF5c2oycHRqbTN2cC9tbnQvRG9jdW1lbnRzL2NoZWNrbTgvZnJvbnRlbmQvdml0ZS5jb25maWcuanNcIjtpbXBvcnQgeyBkZWZpbmVDb25maWcgfSBmcm9tIFwidml0ZVwiO1xuaW1wb3J0IHJlYWN0IGZyb20gXCJAdml0ZWpzL3BsdWdpbi1yZWFjdFwiO1xuXG5leHBvcnQgZGVmYXVsdCBkZWZpbmVDb25maWcoe1xuICBwbHVnaW5zOiBbcmVhY3QoKV0sXG4gIHNlcnZlcjoge1xuICAgIHBvcnQ6IDUxNzMsXG4gIH0sXG4gIC8vIEJvdCBBcmVuYSdzIGxvY2FsLXRlc3Qgc2FuZGJveCB3b3JrZXIgKHNyYy9ib3RzL2JvdFNhbmRib3gud29ya2VyLmpzKVxuICAvLyBwdWxscyBpbiBxdWlja2pzLWVtc2NyaXB0ZW4sIHdoaWNoIG5lZWRzIGl0cyBvd24gY2h1bmsgZm9yIHRoZSBXQVNNXG4gIC8vIGFzc2V0IFx1MjAxNCB0aGF0IHJlcXVpcmVzIHRoZSB3b3JrZXIgYnVuZGxlIHRvIGJlIGJ1aWx0IGFzIGFuIEVTIG1vZHVsZVxuICAvLyByYXRoZXIgdGhhbiBWaXRlJ3MgZGVmYXVsdCBJSUZFLCB3aGljaCBkb2Vzbid0IHN1cHBvcnQgY29kZS1zcGxpdHRpbmcuXG4gIHdvcmtlcjoge1xuICAgIGZvcm1hdDogXCJlc1wiLFxuICB9LFxuICAvLyBNaWNyb1B5dGhvbidzIGxvYWRlciB1c2VzIHRvcC1sZXZlbCBhd2FpdDsgRVMyMDIyIGlzIHN1cHBvcnRlZCBieSBldmVyeVxuICAvLyBicm93c2VyIHRoZSBzaXRlIHRhcmdldHMgKENocm9tZS9FZGdlIDg5KywgRmlyZWZveCA4OSssIFNhZmFyaSAxNSspLlxuICBidWlsZDoge1xuICAgIHRhcmdldDogXCJlczIwMjJcIixcbiAgfSxcbiAgZXNidWlsZDoge1xuICAgIHRhcmdldDogXCJlczIwMjJcIixcbiAgfSxcbiAgb3B0aW1pemVEZXBzOiB7XG4gICAgZXNidWlsZE9wdGlvbnM6IHsgdGFyZ2V0OiBcImVzMjAyMlwiIH0sXG4gIH0sXG59KTtcbiJdLAogICJtYXBwaW5ncyI6ICI7QUFBaVksU0FBUyxvQkFBb0I7QUFDOVosT0FBTyxXQUFXO0FBRWxCLElBQU8sc0JBQVEsYUFBYTtBQUFBLEVBQzFCLFNBQVMsQ0FBQyxNQUFNLENBQUM7QUFBQSxFQUNqQixRQUFRO0FBQUEsSUFDTixNQUFNO0FBQUEsRUFDUjtBQUFBO0FBQUE7QUFBQTtBQUFBO0FBQUEsRUFLQSxRQUFRO0FBQUEsSUFDTixRQUFRO0FBQUEsRUFDVjtBQUFBO0FBQUE7QUFBQSxFQUdBLE9BQU87QUFBQSxJQUNMLFFBQVE7QUFBQSxFQUNWO0FBQUEsRUFDQSxTQUFTO0FBQUEsSUFDUCxRQUFRO0FBQUEsRUFDVjtBQUFBLEVBQ0EsY0FBYztBQUFBLElBQ1osZ0JBQWdCLEVBQUUsUUFBUSxTQUFTO0FBQUEsRUFDckM7QUFDRixDQUFDOyIsCiAgIm5hbWVzIjogW10KfQo=

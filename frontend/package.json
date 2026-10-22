@@ -1,0 +1,33 @@
+{
+  "name": "checkm8-frontend",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@jitl/quickjs-wasmfile-release-sync": "^0.32.0",
+    "@micropython/micropython-webassembly-pyscript": "1.29.0-6",
+    "chess.js": "^1.0.0-beta.8",
+    "monaco-editor": "0.52.2",
+    "quickjs-emscripten-core": "^0.32.0",
+    "react": "^18.3.1",
+    "react-chessboard": "^4.7.2",
+    "react-dom": "^18.3.1",
+    "react-resizable-panels": "2.1.7",
+    "react-router-dom": "^6.26.1",
+    "socket.io-client": "^4.7.5",
+    "sucrase": "3.35.1",
+    "wasmoon": "1.16.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.41",
+    "tailwindcss": "^3.4.10",
+    "vite": "^5.4.2"
+  }
+}

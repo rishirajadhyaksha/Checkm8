@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-ink-900 text-parchment font-sans antialiased;
+}
+
+::selection {
+  background: #c9a15a3d;
+}
+
+/* Colorblind-friendly alternate highlight: a subtle diagonal hatch pattern
+   layered under the color fill, per Section 9.3 accessibility note. */
+.sq-highlight-pattern::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(241, 233, 214, 0.14) 0,
+    rgba(241, 233, 214, 0.14) 2px,
+    transparent 2px,
+    transparent 8px
+  );
+  pointer-events: none;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #332a1a;
+  border-radius: 4px;
+}
+
+/* Corner-tick framing for "scorecard" style panels — a nod to certificate
+   and scoresheet corners rather than a plain drop-shadowed card. */
+.tick-frame {
+  position: relative;
+}
+.tick-frame::before,
+.tick-frame::after,
+.tick-frame > .tick-tr,
+.tick-frame > .tick-bl {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: #c9a15a;
+  opacity: 0.7;
+}
+.tick-frame::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+.tick-frame::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
+}
