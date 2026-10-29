@@ -1,0 +1,109 @@
+name: Deploy to production
+
+# Runs on every push to main — including the daily agent's commits.
+# Builds the frontend here (the production box only has 416MB RAM, too
+# tight to run `vite build` on it reliably), then SSHes in to pull the new
+# server code, install deps, ship the built frontend, restart, and verify.
+# Any failure after the backup step triggers an automatic rollback of both
+# the server code and the frontend static files, so a bad push never
+# leaves the live site broken.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+env:
+  LIGHTSAIL_HOST: 54.167.176.166
+  LIGHTSAIL_USER: ubuntu
+  REMOTE_DIR: /home/ubuntu/checkm8
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+          # Sanity check: the build actually points at the production API,
+          # not localhost (bit us once before — see
+          # claude/bot-arena-deployment-2026-09-23.md).
+          if grep -rq "localhost:4000" dist/assets/*.js 2>/dev/null; then
+            echo "::error::Built frontend still references localhost:4000 — VITE_API_URL misconfigured. Aborting before touching production."
+            exit 1
+          fi
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$LIGHTSAIL_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Ship frontend build
+        run: |
+          scp -i ~/.ssh/deploy_key -r frontend/dist "$LIGHTSAIL_USER@$LIGHTSAIL_HOST:/tmp/new_dist"
+
+      - name: Deploy + verify + auto-rollback
+        run: |
+          ssh -i ~/.ssh/deploy_key "$LIGHTSAIL_USER@$LIGHTSAIL_HOST" 'bash -s' << 'REMOTE_EOF'
+          set -e
+          cd "$REMOTE_DIR" 2>/dev/null || cd /home/ubuntu/checkm8
+          TS=$(date +%s)
+
+          echo "--- recording rollback points ---"
+          PREV_COMMIT=$(git rev-parse HEAD)
+          sudo rm -rf /var/www/html.bak.$TS
+          sudo cp -r /var/www/html /var/www/html.bak.$TS
+
+          rollback() {
+            echo "!!! DEPLOY FAILED — rolling back to $PREV_COMMIT"
+            git reset --hard "$PREV_COMMIT"
+            (cd server && npm ci --omit=dev --ignore-scripts) || true
+            sudo rm -rf /var/www/html
+            sudo mv /var/www/html.bak.$TS /var/www/html
+            sudo chmod -R a+rX /var/www/html
+            pm2 restart checkm8-server || true
+            exit 1
+          }
+          trap rollback ERR
+
+          echo "--- pulling new code ---"
+          git fetch origin main
+          git reset --hard origin/main
+
+          echo "--- server deps + syntax check ---"
+          cd server
+          npm ci --omit=dev --ignore-scripts
+          find src -name '*.js' -print0 | xargs -0 -n1 node --check
+          cd ..
+
+          echo "--- swapping in new frontend build ---"
+          sudo rm -rf /var/www/html
+          sudo mv /tmp/new_dist /var/www/html
+          sudo chmod -R a+rX /var/www/html
+
+          echo "--- restarting ---"
+          pm2 restart checkm8-server
+          sleep 3
+
+          echo "--- verifying ---"
+          HEALTH=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 http://localhost:4000/health)
+          if [ "$HEALTH" != "200" ]; then
+            echo "health check returned $HEALTH, not 200"
+            exit 1
+          fi
+
+          echo "--- cleaning up old backup ---"
+          sudo rm -rf /var/www/html.bak.$TS
+          echo "DEPLOY_OK"
+          REMOTE_EOF
+
+      - name: Clean up SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
