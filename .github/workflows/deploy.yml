@@ -47,13 +47,16 @@ jobs:
 
       - name: Ship frontend build
         run: |
+          # Clear any stale staging dir from a previous failed run first --
+          # otherwise scp -r nests the folder instead of overwriting it.
+          ssh -i ~/.ssh/deploy_key "$LIGHTSAIL_USER@$LIGHTSAIL_HOST" "rm -rf /tmp/new_dist"
           scp -i ~/.ssh/deploy_key -r frontend/dist "$LIGHTSAIL_USER@$LIGHTSAIL_HOST:/tmp/new_dist"
 
       - name: Deploy + verify + auto-rollback
         run: |
           ssh -i ~/.ssh/deploy_key "$LIGHTSAIL_USER@$LIGHTSAIL_HOST" 'bash -s' << 'REMOTE_EOF'
           set -e
-          cd "$REMOTE_DIR" 2>/dev/null || cd /home/ubuntu/checkm8
+          cd /home/ubuntu/checkm8  # $REMOTE_DIR isn't exported into this remote SSH session, so hardcode it
           TS=$(date +%s)
 
           echo "--- recording rollback points ---"
